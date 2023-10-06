@@ -34,9 +34,6 @@ class GraphAttentionLayer(nn.Module, LoRALayer):
         nn.init.xavier_uniform_(self.W.data, gain=1.414)
         self.a = nn.Parameter(torch.empty(size=(2*out_features, 1)))
         nn.init.xavier_uniform_(self.a.data, gain=1.414)
-        
-        #Freeze weight matrix
-        self.W.requires_grad = False
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 

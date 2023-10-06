@@ -1,6 +1,8 @@
 import numpy as np
 import scipy.sparse as sp
 import torch
+import dgl
+from dgl.data import CoraGraphDataset, CiteseerGraphDataset
 
 
 def encode_onehot(labels):

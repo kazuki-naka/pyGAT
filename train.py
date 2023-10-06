@@ -15,6 +15,7 @@ from torch.autograd import Variable
 
 from utils import load_data, accuracy
 from models import GAT
+import test
 
 # Training settings
 parser = argparse.ArgumentParser()
@@ -73,9 +74,9 @@ def train(epoch):
         # deactivates dropout during validation run.
         model.eval()
         output = model(features, adj)
+        loss_val = F.nll_loss(output[idx_val], labels[idx_val])
+        acc_val = accuracy(output[idx_val], labels[idx_val])
 
-    loss_val = F.nll_loss(output[idx_val], labels[idx_val])
-    acc_val = accuracy(output[idx_val], labels[idx_val])
     print('Epoch: {:04d}'.format(epoch+1),
           'loss_train: {:.4f}'.format(loss_train.data.item()),
           'acc_train: {:.4f}'.format(acc_train.data.item()),
@@ -84,16 +85,6 @@ def train(epoch):
           'time: {:.4f}s'.format(time.time() - t))
 
     return loss_val.data.item()
-
-
-def compute_test():
-    model.eval()
-    output = model(features, adj)
-    loss_test = F.nll_loss(output[idx_test], labels[idx_test])
-    acc_test = accuracy(output[idx_test], labels[idx_test])
-    print("Test set results:",
-          "loss= {:.4f}".format(loss_test.data.item()),
-          "accuracy= {:.4f}".format(acc_test.data.item()))
 
 # Train model
 t_total = time.time()
@@ -135,4 +126,5 @@ print('Loading {}th epoch'.format(best_epoch))
 model.load_state_dict(torch.load('{}.pkl'.format(best_epoch)))
 
 # Testing
-compute_test()
+# compute_test()
+test.test(model, features, adj, idx_test, labels)
