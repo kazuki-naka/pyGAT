@@ -126,5 +126,7 @@ print('Loading {}th epoch'.format(best_epoch))
 model.load_state_dict(torch.load('{}.pkl'.format(best_epoch)))
 
 # Testing
-# compute_test()
 test.test(model, features, adj, idx_test, labels)
+
+# Save model
+torch.save(model.state_dict(), 'weight_base.pth')
