@@ -10,6 +10,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 import test
+import sys
 
 from utils import load_data, accuracy, count_parameters
 from models import GAT
@@ -39,11 +40,14 @@ if args.cuda:
 # Load data
 adj, features, labels, idx_train, idx_val, idx_test = load_data()
 
-model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=int(labels.max()) + 1, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha)
+model = GAT(nfeat=features.shape[1], nhid=args.hidden, nclass=int(labels.max()) + 1, dropout=args.dropout, nheads=args.nb_heads, alpha=args.alpha, finetune = True)
 optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
 # load pre-trained model
 model.load_state_dict(torch.load('weight_base.pth'), strict=False)
+
+print(model)
+sys.exit(0)
 
 count_parameters(model)
 

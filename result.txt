@@ -1,0 +1,8 @@
+Total time elapsed: 40.5476s
+Loading 733th epoch
+Test set results: loss= 0.6621 accuracy= 0.8440
+
+Total time elapsed: 6.2403s
+Loading 7th epoch
+Test set results: loss= 0.6620 accuracy= 0.8440
+

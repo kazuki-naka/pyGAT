@@ -2,6 +2,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import math
+import loralib as lora
 
 # Low Rank Layer
 class LoRALayer():
@@ -75,7 +77,7 @@ class Linear(nn.Linear, LoRALayer):
                 # Merge the weights and mark it
                 if self.r > 0:
                     self.weight.data += T(self.lora_B @ self.lora_A) * self.scaling
-                self.merged = True       
+                self.merged = True
 
     def forward(self, x: torch.Tensor):
         def T(w):
@@ -91,7 +93,7 @@ class GraphAttentionLayer(nn.Module):
     """
     Simple GAT layer, similar to https://arxiv.org/abs/1710.10903
     """
-    def __init__(self, in_features, out_features, dropout, alpha, concat=True):
+    def __init__(self, in_features, out_features, dropout, alpha, concat=True, finetune=False):
         super(GraphAttentionLayer, self).__init__()
         self.dropout = dropout
         self.in_features = in_features
@@ -99,15 +101,29 @@ class GraphAttentionLayer(nn.Module):
         self.alpha = alpha
         self.concat = concat
 
-        self.W = nn.Parameter(torch.empty(size=(in_features, out_features)))
-        nn.init.xavier_uniform_(self.W.data, gain=1.414)
-        self.a = nn.Parameter(torch.empty(size=(2*out_features, 1)))
-        nn.init.xavier_uniform_(self.a.data, gain=1.414)
+        # self.W = nn.Parameter(torch.empty(size=(in_features, out_features)))
+        # nn.init.xavier_uniform_(self.W.data, gain=1.414)
+        # self.a = nn.Parameter(torch.empty(size=(2*out_features, 1)))
+        # nn.init.xavier_uniform_(self.a.data, gain=1.414)
+
+        self.linear1 = Linear(self.out_features, 1, bias=False)
+        self.linear2 = Linear(self.out_features, 1, bias=False)
+        nn.init.xavier_uniform_(self.linear1.weight.data, gain=1.414)
+        nn.init.xavier_uniform_(self.linear2.weight.data, gain=1.414)
+
+        print(f"in_features: {in_features}, out_features: {out_features}")
+
+        if finetune:
+            self.linear0 = lora.Linear(in_features, out_features, r=16, bias=False)
+        else:
+            self.linear0 = Linear(in_features, out_features, bias=False)
+            nn.init.xavier_uniform_(self.linear0.weight.data, gain=1.414)
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
     def forward(self, h, adj):
-        Wh = torch.mm(h, self.W) # h.shape: (N, in_features), Wh.shape: (N, out_features)
+        Wh = self.linear0(h)
+        # Wh = torch.mm(h, self.W) # h.shape: (N, in_features), Wh.shape: (N, out_features)
         e = self._prepare_attentional_mechanism_input(Wh)
 
         zero_vec = -9e15*torch.ones_like(e)
@@ -126,8 +142,12 @@ class GraphAttentionLayer(nn.Module):
         # self.a.shape (2 * out_feature, 1)
         # Wh1&2.shape (N, 1)
         # e.shape (N, N)
-        Wh1 = torch.matmul(Wh, self.a[:self.out_features, :])
-        Wh2 = torch.matmul(Wh, self.a[self.out_features:, :])
+        # linear_layer = lora.Linear(self.in_features, self.out_features, r = 16)
+        # matmul: (N, out_feature) * (out_feature, 1) --> (N, 1)
+        Wh1 = self.linear1(Wh)
+        Wh2 = self.linear2(Wh)
+        # Wh1 = torch.matmul(Wh, self.a[:self.out_features, :])
+        # Wh2 = torch.matmul(Wh, self.a[self.out_features:, :])
         # broadcast add
         e = Wh1 + Wh2.T
         return self.leakyrelu(e)

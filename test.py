@@ -11,5 +11,5 @@ def test(model, features, adj, idx_test, labels):
     acc_test = accuracy(output[idx_test], labels[idx_test])
     with open('result.txt', 'a') as text: 
         print("Test set results:",
-            "loss= {:.4f}".format(loss_test.data.item()),
-            "accuracy= {:.4f}\n".format(acc_test.data.item()), file = text)
+              "loss= {:.4f}".format(loss_test.data.item()),
+              "accuracy= {:.4f}\n".format(acc_test.data.item()), file = text)
