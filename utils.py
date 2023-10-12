@@ -75,3 +75,9 @@ def accuracy(output, labels):
     correct = correct.sum()
     return correct / len(labels)
 
+def count_parameters(model):
+    total_parameters = 0
+    for name, param in model.named_parameters():
+        param_count = param.numel()
+        total_parameters += param_count
+    print(f"Total parameters: {total_parameters}")

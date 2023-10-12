@@ -13,7 +13,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 
-from utils import load_data, accuracy
+from utils import load_data, accuracy, count_parameters
 from models import GAT
 import test
 
@@ -119,10 +119,13 @@ for file in files:
         os.remove(file)
 
 print("Optimization Finished!")
-print("Total time elapsed: {:.4f}s".format(time.time() - t_total))
 
-# Restore best model
-print('Loading {}th epoch'.format(best_epoch))
+with open('result.txt', 'w') as text: 
+    print("Total time elapsed: {:.4f}s".format(time.time() - t_total), file = text)
+
+    # Restore best model
+    print('Loading {}th epoch'.format(best_epoch), file = text)
+
 model.load_state_dict(torch.load('{}.pkl'.format(best_epoch)))
 
 # Testing
@@ -130,3 +133,5 @@ test.test(model, features, adj, idx_test, labels)
 
 # Save model
 torch.save(model.state_dict(), 'weight_base.pth')
+
+count_parameters(model)

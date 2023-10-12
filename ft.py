@@ -9,8 +9,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
+import test
 
-from utils import load_data, accuracy
+from utils import load_data, accuracy, count_parameters
 from models import GAT
 
 parser = argparse.ArgumentParser()
@@ -43,6 +44,8 @@ optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_
 
 # load pre-trained model
 model.load_state_dict(torch.load('weight_base.pth'), strict=False)
+
+count_parameters(model)
 
 # Training
 if args.cuda:
@@ -117,10 +120,13 @@ for file in files:
         os.remove(file)
 
 print("Optimization Finished!")
-print("Total time elapsed: {:.4f}s".format(time.time() - t_total))
 
-# Restore best model
-print('Loading {}th epoch'.format(best_epoch))
+with open('result.txt', 'a') as text: 
+    print("Total time elapsed: {:.4f}s".format(time.time() - t_total), file = text)
+
+    # Restore best model
+    print('Loading {}th epoch'.format(best_epoch), file = text)
+
 model.load_state_dict(torch.load('{}.pkl'.format(best_epoch)))
 
 # Testing
