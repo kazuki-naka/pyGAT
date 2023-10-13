@@ -46,11 +46,6 @@ optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_
 # load pre-trained model
 model.load_state_dict(torch.load('weight_base.pth'), strict=False)
 
-print(model)
-sys.exit(0)
-
-count_parameters(model)
-
 # Training
 if args.cuda:
     model.cuda()
@@ -132,6 +127,8 @@ with open('result.txt', 'a') as text:
     print('Loading {}th epoch'.format(best_epoch), file = text)
 
 model.load_state_dict(torch.load('{}.pkl'.format(best_epoch)))
+
+count_parameters(model)
 
 # Testing
 test.test(model, features, adj, idx_test, labels)
