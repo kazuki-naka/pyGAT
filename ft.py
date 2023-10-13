@@ -10,7 +10,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 import test
-import sys
+import psutil
 
 from utils import load_data, accuracy, count_parameters
 from models import GAT
@@ -132,3 +132,7 @@ count_parameters(model)
 
 # Testing
 test.test(model, features, adj, idx_test, labels)
+
+with open('result.txt', 'a') as text: 
+    mem = psutil.virtual_memory()
+    print(f"fine-tuning used memories : {mem.used}", file=text)

@@ -12,6 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
+import psutil
 
 from utils import load_data, accuracy, count_parameters
 from models import GAT
@@ -135,3 +136,7 @@ test.test(model, features, adj, idx_test, labels)
 torch.save(model.state_dict(), 'weight_base.pth')
 
 count_parameters(model)
+
+with open('result.txt', 'a') as text: 
+    mem = psutil.virtual_memory()
+    print(f"pre_train used memories : {mem.used}", file=text)

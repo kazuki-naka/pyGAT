@@ -1,8 +1,10 @@
-Total time elapsed: 40.5476s
-Loading 733th epoch
-Test set results: loss= 0.6621 accuracy= 0.8440
+Total time elapsed: 39.8886s
+Loading 743th epoch
+Test set results: loss= 0.6599 accuracy= 0.8460
 
-Total time elapsed: 6.2403s
-Loading 7th epoch
-Test set results: loss= 0.6620 accuracy= 0.8440
+pre_train used memories : 6010728448
+Total time elapsed: 47.5687s
+Loading 876th epoch
+Test set results: loss= 0.5633 accuracy= 0.8460
 
+fine-tuning used memories : 5960286208

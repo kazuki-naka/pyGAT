@@ -111,10 +111,8 @@ class GraphAttentionLayer(nn.Module):
         nn.init.xavier_uniform_(self.linear1.weight.data, gain=1.414)
         nn.init.xavier_uniform_(self.linear2.weight.data, gain=1.414)
 
-        print(f"in_features: {in_features}, out_features: {out_features}")
-
         if finetune:
-            self.linear0 = lora.Linear(in_features, out_features, r=16, bias=False)
+            self.linear0 = lora.Linear(in_features, out_features, r=4, bias=False)
         else:
             self.linear0 = Linear(in_features, out_features, bias=False)
             nn.init.xavier_uniform_(self.linear0.weight.data, gain=1.414)
