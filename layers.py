@@ -106,15 +106,17 @@ class GraphAttentionLayer(nn.Module):
         # self.a = nn.Parameter(torch.empty(size=(2*out_features, 1)))
         # nn.init.xavier_uniform_(self.a.data, gain=1.414)
 
-        self.linear1 = Linear(self.out_features, 1, bias=False)
-        self.linear2 = Linear(self.out_features, 1, bias=False)
+        # separate self attenion into the same two vectors as linear layer
+        self.linear1 = nn.Linear(self.out_features, 1, bias=False)
+        self.linear2 = nn.Linear(self.out_features, 1, bias=False)
         nn.init.xavier_uniform_(self.linear1.weight.data, gain=1.414)
         nn.init.xavier_uniform_(self.linear2.weight.data, gain=1.414)
 
+        # define weight matrix depending on finetune
         if finetune:
             self.linear0 = lora.Linear(in_features, out_features, r=4, bias=False)
         else:
-            self.linear0 = Linear(in_features, out_features, bias=False)
+            self.linear0 = nn.Linear(in_features, out_features, bias=False)
             nn.init.xavier_uniform_(self.linear0.weight.data, gain=1.414)
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
@@ -136,12 +138,11 @@ class GraphAttentionLayer(nn.Module):
             return h_prime
 
     def _prepare_attentional_mechanism_input(self, Wh):
-        # Wh.shape (N, out_feature)
-        # self.a.shape (2 * out_feature, 1)
+        # Wh.shape (N, out_features)
+        # self.a.shape (2 * out_features, 1)
         # Wh1&2.shape (N, 1)
-        # e.shape (N, N)
-        # linear_layer = lora.Linear(self.in_features, self.out_features, r = 16)
-        # matmul: (N, out_feature) * (out_feature, 1) --> (N, 1)
+        # e.shape (N, N) --> ???
+        # matmul: (N, out_features) * (out_features, 1) --> (N, 1)
         Wh1 = self.linear1(Wh)
         Wh2 = self.linear2(Wh)
         # Wh1 = torch.matmul(Wh, self.a[:self.out_features, :])

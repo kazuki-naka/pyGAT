@@ -10,11 +10,11 @@ class GAT(nn.Module):
         super(GAT, self).__init__()
         self.dropout = dropout
 
-        self.attentions = [GraphAttentionLayer(nfeat, nhid, dropout=dropout, alpha=alpha, concat=True, finetune = finetune) for _ in range(nheads)]
+        self.attentions = [GraphAttentionLayer(nfeat, nhid, dropout=dropout, alpha=alpha, concat=True, finetune=finetune) for _ in range(nheads)]
         for i, attention in enumerate(self.attentions):
             self.add_module('attention_{}'.format(i), attention)
 
-        self.out_att = GraphAttentionLayer(nhid * nheads, nclass, dropout=dropout, alpha=alpha, concat=False, finetune = finetune)
+        self.out_att = GraphAttentionLayer(nhid * nheads, nclass, dropout=dropout, alpha=alpha, concat=False, finetune=finetune)
 
     def forward(self, x, adj):
         x = F.dropout(x, self.dropout, training=self.training)
